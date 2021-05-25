@@ -5,30 +5,43 @@ require 'twilio-ruby'
 class Checker
   URL = 'https://www.apple.com/ca/shop/refurbished/mac/macbook-air'.freeze
 
-  def self.call
-    item = doc.at('li:contains("13.3-inch MacBook Air Apple M1 Chip with 8‑Core CPU and 7‑Core GPU")')
-    return if item.nil?
+  class << self
+    def call
+      return if item.nil?
+      return if price > 1200
 
-    price = item.css('div').text.gsub(/[$,]/, '').to_f
-    send_sms("New Refurbished Mac: #{URL}") if price < 1200
-  end
+      send_sms
+    end
 
-  def self.client
-    @client ||= Twilio::REST::Client.new(
-      ENV['TWILIO_ACCOUNT_SID'],
-      ENV['TWILIO_AUTH_TOKEN']
-    )
-  end
+    private
 
-  def self.send_sms(message)
-    client.messages.create(
-      from: ENV['TWILIO_TRIAL_NUMBER'],
-      to: ENV['PERSONAL_NUMBER'],
-      body: message
-    )
-  end
+    def client
+      Twilio::REST::Client.new(
+        ENV['TWILIO_ACCOUNT_SID'],
+        ENV['TWILIO_AUTH_TOKEN']
+      )
+    end
 
-  def self.doc
-    @doc ||= Nokogiri::HTML(URI.open(URL))
+    def doc
+      Nokogiri::HTML(URI.open(URL))
+    end
+
+    def item
+      doc.at(
+        'li:contains("13.3-inch MacBook Air Apple M1 Chip with 8‑Core CPU and 7‑Core GPU")'
+      )
+    end
+
+    def price
+      item.css('div').text.gsub(/[$,]/, '').to_f
+    end
+
+    def send_sms
+      client.messages.create(
+        from: ENV['TWILIO_TRIAL_NUMBER'],
+        to: ENV['PERSONAL_NUMBER'],
+        body: "New Refurbished Mac: #{URL}"
+      )
+    end
   end
 end
