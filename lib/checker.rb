@@ -28,7 +28,7 @@ class Checker
 
     def item
       doc.at(
-        'li:contains("13.3-inch MacBook Air Apple M1 Chip with 8‑Core CPU and 7‑Core GPU")'
+        'li:contains("13.3-inch MacBook Air Apple M1 Chip with 8‑Core CPU and 7‑Core GPU - Space Grey")'
       )
     end
 
